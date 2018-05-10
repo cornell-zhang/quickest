@@ -177,7 +177,8 @@ if __name__ == "__main__":
 
   # dataset containing all devices
   all_data = {'training_X': all_training_X, 'training_Y': all_training_Y, 'norm_training_Y': norm_all_training_Y, 'test_X': all_test_X, 'test_Y': all_test_Y, 'normVal': all_normVal}
-  pickle.dump(all_data, open( outputPath + "/all.pkl", "wb" ) )
+  with open( outputPath + "/all.pkl", "wb" ) as f:
+    pickle.dump(all_data, f)
 
   # device-specific dataset
   for device in [0, 1, 2, 3]:
@@ -187,5 +188,8 @@ if __name__ == "__main__":
                 'test_X': tests_X[device], 
                 'test_Y': tests_Y[device], 
                 'normVal': Y_normVals[device]}    
-    pickle.dump(dev_data, open( outputPath + "/dev" + str(device) + ".pkl", "wb" ) )
-  pickle.dump(namepack, open( outputPath + "/names.pkl", "wb"))
+    with open( outputPath + "/dev" + str(device) + ".pkl", "wb" ) as f:
+      pickle.dump(dev_data, f )
+
+  with open( outputPath + "/names.pkl", "wb") as f:
+    pickle.dump(namepack, f)
