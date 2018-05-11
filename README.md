@@ -1,8 +1,8 @@
-# DABoost
+# QuickEst
 
 ## Publication
 -------------------------------------------------------------------------------------------
-If you use DABoost in your research, please cite [our FCCM'18 paper][1]:
+If you use QuickEst in your research, please cite [our FCCM'18 paper][1]:
 ```
   @article{dai-hls-qor-fccm2018,
     title   = "{Fast and Accurate Estimation of Quality of Results in 
@@ -19,7 +19,7 @@ If you use DABoost in your research, please cite [our FCCM'18 paper][1]:
 
 ## Usage
 
-DABoost is organized into directories for different estimation tasks.
+QuickEst is organized into directories for different estimation tasks.
 
 ### HLS
 
