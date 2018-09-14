@@ -39,7 +39,7 @@ The following formats should also be satisfied:
 
 
 ## Data preprocessing
-python preprocess.py [-h] [--data_dir DATA_DIR] [--feature_col FEATURE_COL]
+python preprocess.py [-h] [--data_dir DATA_DIR] [-c FEATURE_COL]
                      [--test_seed TEST_SEED] [--cluster_k CLUSTER_K]
 
 ```
@@ -47,7 +47,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --data_dir DATA_DIR   Directory or file of the input data. String. Default:
                         ./data/data.csv
-  --feature_col FEATURE_COL
+  -c FEATURE_COL, --feature_col FEATURE_COL
                         The index (start from 1) of the last feature column.
                         The first 2 columns are design index and device index
                         respectively. Integer. Default: 236
@@ -61,10 +61,9 @@ optional arguments:
 
 ## Model training
 python train.py [-h] [--data_dir DATA_DIR] [--params_dir PARAMS_DIR]
-                [--models_dir MODELS_DIR] [--tune_parameter]
-                [--validation_ratio VALIDATION_RATIO]
-                [--model_train MODEL_TRAIN] [--model_fsel MODEL_FSEL]
-                [--model_assemble MODEL_ASSEMBLE]
+                [--models_dir MODELS_DIR] [-t]
+                [--validation_ratio VALIDATION_RATIO] [-m MODEL_TRAIN]
+                [-s MODEL_FSEL] [-a MODEL_ASSEMBLE]
 
 ```
 optional arguments:
@@ -77,19 +76,19 @@ optional arguments:
   --models_dir MODELS_DIR
                         Directory or file to save the trained model. String.
                         Default: ./saves/train/models.pkl
-  --tune_parameter      Whether to tune parameters or not. Boolean. Default:
+  -t, --tune_parameter  Whether to tune parameters or not. Boolean. Default:
                         true
   --validation_ratio VALIDATION_RATIO
                         The ratio of the training data to do validation.
                         Float. Default: 0.25
-  --model_train MODEL_TRAIN
+  -m MODEL_TRAIN, --model_train MODEL_TRAIN
                         The model to be trained. Empty means not training
                         models. Value from "", "xgb"(default), "lasso"
-  --model_fsel MODEL_FSEL
+  -s MODEL_FSEL, --model_fsel MODEL_FSEL
                         The model used to select features. Empty means not
                         selecting features. Value from "", "xgb",
                         "lasso"(default)
-  --model_assemble MODEL_ASSEMBLE
+  -a MODEL_ASSEMBLE, --model_assemble MODEL_ASSEMBLE
                         Strategy used to assemble the trained models. Empty
                         means not training models. Value from ""(default),
                         "xgb+lasso+equal_weights", "xgb+lasso+learn_weights"
@@ -113,10 +112,10 @@ optional arguments:
 ```
 
 ## Model analyzing
-python analyze.py [-h] [--train_data_dir TRAIN_DATA_DIR]
+usage: analyze.py [-h] [--train_data_dir TRAIN_DATA_DIR]
                   [--test_data_dir TEST_DATA_DIR] [--model_dir MODEL_DIR]
                   [--param_dir PARAM_DIR] [--result_dir RESULT_DIR]
-                  [--save_result_dir SAVE_RESULT_DIR] [--func FUNC]
+                  [--save_result_dir SAVE_RESULT_DIR] [-f FUNC]
 
 ```
 optional arguments:
@@ -139,6 +138,23 @@ optional arguments:
   --save_result_dir SAVE_RESULT_DIR
                         Directory to save the analyzing results. String.
                         Default: ./save/analysis/
-  --func FUNC           Select the analysis function. Value from "fi",
-                        "sc"(default), "schls", "ls"
+  -f FUNC, --func FUNC  Select the analysis function. Value from "fi" or
+                        "feature_importance", "schls" or "score_hls", "sc" or
+                        "score" (default), "lc" or "learning_curve", "re" or
+                        "result_error", "red" or "result_error_design", "rt"
+                        or "result_truth", "rtd" or "result_truth_design",
+                        "rp" or "result_predict", "rpd" or
+                        "result_predict_design".
+                        
+function explaination:
+fi - calculate feature importance
+sc - calculate the scores of model results
+schls - calculate the scores of HLS results
+lc - plot the learning curve
+re - show the result errors
+red - show the result errors grouped by the design ids
+rt - show the result ground truth of the testing data
+rtd - show the result truth of the testing data grouped by the design ids
+rp - show the result prediction of the testing data
+rpd - show the result prediction grouped by the design ids
 ```

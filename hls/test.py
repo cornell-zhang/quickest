@@ -19,10 +19,9 @@ parser.add_argument('--models_dir', type=str,
                     String. Default: ./train/models.pkl')
 
 parser.add_argument('--save_result_dir', type=str, 
-                    default='./saves/test/', 
-                    help='Directory to save the result. \
-                    Input folder or file name. \
-                    String. Default: ./saves/test/')
+                    default='./saves/test/results.pkl', 
+                    help='Directory or file to save the result. \
+                    String. Default: ./saves/test/results.pkl')
 
 
 def load_data(FLAGS, silence=False):
@@ -76,17 +75,19 @@ def save_result_db(result_db, FLAGS, silence=False):
     """
     # input file name
     file_dir, file_name = os.path.split(FLAGS.save_result_dir)
-    if file_dir == '': file_dir = './saves/test/'
+    if file_dir == '': file_dir = "./saves/test/"
+    if file_name == '': file_name = 'results.pkl'
+    file_path = os.path.join(file_dir, file_name)
     
     # create folder
     if not os.path.exists(file_dir):
         os.mkdir(file_dir)
         
     # save
-    pickle.dump(result_db, open(os.path.join(file_dir, 'Results.pkl'), 'w'))
+    pickle.dump(result_db, open(file_path, 'w'))
     
     if not silence: print ''
-    if not silence: print "Save results to: ", file_dir
+    if not silence: print "Save results to: ", file_path
 
 
 def test_models(model_db, X, Y, silence=False):

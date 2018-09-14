@@ -14,7 +14,7 @@ parser.add_argument('--data_dir', type=str, default='./data/data.csv',
                     help='Directory or file of the input data. \
                     String. Default: ./data/data.csv')
 
-parser.add_argument('--feature_col', type=int, default=236,  # 87， 92, 236
+parser.add_argument('-c', '--feature_col', type=int, default=236,  # 87， 92, 236
                     help='The index (start from 1) of the last feature column.\
                     The first 2 columns are design index and device index respectively. \
                     Integer. Default: 236')
@@ -23,8 +23,12 @@ parser.add_argument('--test_seed', type=int, default=0,
                     help='The seed used for selecting the test id. \
                     Integer. Default: 0')
 
+parser.add_argument('--test_ratio', type=float, default=0.25, 
+                    help='The percentage of the data used as testing dataset.\
+                    Float. Default: 0.25')
+
 parser.add_argument('--cluster_k', type=int, default=8, 
-                    help='How many clusters will be grouped when patitioning the training and testing dataset.\
+                    help='How many clusters will be clustered when patitioning the training and testing dataset.\
                     Integer. Default: 8')
 
 
@@ -188,7 +192,7 @@ def split_train_test(df_features, df_targets, split_by, test_seed,
         y_cluster['Target'] = x_cluster.mean(axis=1)
         
         sort_ids = y_cluster.sort_values(['Cluster', 'Target']).index
-        test_ids = sort_ids[test_seed % cluster_k: -1: int(1 / test_ratio)].tolist()
+        test_ids = sort_ids[test_seed % cluster_k: : int(1 / test_ratio)].tolist()
         
         # split dataset
         x_train = df_features[~df_features['Design_Index'].isin(test_ids)]
@@ -257,6 +261,7 @@ if __name__ == '__main__':
     data, index, names, stas = load_data(file_name=file_load, 
                                          feature_col=FLAGS.feature_col,
                                          test_seed=FLAGS.test_seed,
+                                         test_ratio=FLAGS.test_ratio,
                                          cluster_k=FLAGS.cluster_k)
     
     x_train = data[0]
@@ -292,8 +297,8 @@ if __name__ == '__main__':
                      'fmean': mean_features, 'tmean': mean_targets,
                      'fstd': std_features, 'tstd': std_targets}, f)
         
-    print "Save training data to", file_save_train
-    print "Save testing data to", file_save_test
+    print "\nSave training data to", file_save_train
+    print "\nSave testing data to", file_save_test
         
     print "\n========== End ==========\n"
     

@@ -45,9 +45,30 @@ parser.add_argument('--save_result_dir', type=str,
                     help = 'Directory to save the analyzing results. \
                     String. Default: ./save/analysis/')
 
-parser.add_argument('--func', type=str, default='sc', 
+parser.add_argument('-f', '--func', type=str, default='sc', 
                     help='Select the analysis function. \
-                    Value from "fi", "sc"(default), "schls", "ls"')
+                    Value from "fi" or "feature_importance", \n \
+                    "schls" or "score_hls", \
+                    "sc" or "score" (default), \
+                    "lc" or "learning_curve", \
+                    "re" or "result_error", \
+                    "red" or "result_error_design", \
+                    "rt" or "result_truth", \
+                    "rtd" or "result_truth_design", \
+                    "rp" or "result_predict", \
+                    "rpd" or "result_predict_design".')
+
+# function explaination
+# fi - calculate feature importance
+# sc - calculate the scores of model results
+# schls - calculate the scores of HLS results
+# lc - plot the learning curve
+# re - show the result errors
+# red - show the result errors grouped by the design ids
+# rt - show the result ground truth of the testing data
+# rtd - show the result truth of the testing data grouped by the design ids
+# rp - show the result prediction of the testing data
+# rpd - show the result prediction grouped by the design ids
 
 
 def load_data(file_name, silence=False):
@@ -66,7 +87,7 @@ def load_data(file_name, silence=False):
     # unpack the data
     X = data['x']
     Y = data['y']
-#    design_index = data['desii']
+    design_index = data['desii']
 #    device_index = data['devii']
     feature_name = data['fname']
     target_name = data['tname']
@@ -76,7 +97,7 @@ def load_data(file_name, silence=False):
     std_targets = data['tstd']
     
     return X, Y, mean_features, mean_targets, std_features, std_targets, \
-           feature_name, target_name
+           feature_name, target_name, design_index
            
            
 def load_test_data(FLAGS):
@@ -148,7 +169,7 @@ def analyze_feature_importance(FLAGS):
             
             # which model
             if key == 'lasso':
-                continue
+                feature_weights = abs(model.coef_)
             
             elif key == 'xgb':
                 b = model.get_booster()
@@ -156,11 +177,14 @@ def analyze_feature_importance(FLAGS):
                 feature_weights = np.array(feature_weights, dtype=np.float32)
                 feature_weights = feature_weights / feature_weights.sum()
                 
-                for tt in xrange(len(feature_weights)):
-                    if fnames[tt] in results.index:
-                        results[target][fnames[tt]] = feature_weights[tt]
-                    else:
-                        results = results.append(pd.DataFrame([feature_weights[tt]], columns=[target], index=[fnames[tt]]))
+            else:
+                continue
+                
+            for tt in xrange(len(feature_weights)):
+                if fnames[tt] in results.index:
+                    results[target][fnames[tt]] = feature_weights[tt]
+                else:
+                    results = results.append(pd.DataFrame([feature_weights[tt]], columns=[target], index=[fnames[tt]]))
             
         # save the results
         if not os.path.exists(FLAGS.save_result_dir):
@@ -274,8 +298,9 @@ def analyze_scores_hls(FLAGS, n=4):
     Analyzing function: Calculate the scores of the HLS results.
     """
     # load testing data
-    X, Y, mean_features, mean_targets, std_features, std_targets, \
-        feature_names, target_names = load_test_data(FLAGS)
+    X, Y, mean_features, mean_targets, \
+        std_features, std_targets, feature_names, target_names, \
+        design_index = load_test_data(FLAGS)
         
     # data to return
     scores = pd.DataFrame()
@@ -287,20 +312,13 @@ def analyze_scores_hls(FLAGS, n=4):
     
     # test model
     for ii in xrange(n):
-        _x = X[:, ii] * std_features[ii] + mean_features[ii]
-        _y = Y[:, ii] * std_targets[ii] + mean_targets[ii]
-#        if len(X.shape) == 2:
-#            _x = X[:, ii] * std_features[ii] + mean_features[ii]
-#            _y = Y[:, ii] * std_targets[ii] + mean_targets[ii]
-#        else:
-#            _x = X[ii][:, ii] * std_features[ii][ii] + mean_features[ii][ii]
-#            _y = Y[ii][:, 0] * std_targets[ii][0] + mean_targets[ii][0]
-            
+        x = X[:, ii] * std_features[ii] + mean_features[ii]
+        y = Y[:, ii] * std_targets[ii] + mean_targets[ii]
         
         # metrics
-        scores_RAE[ii] = score_REA(_y, _x)
-        scores_R2[ii] =  sl.metrics.r2_score(_y, _x)
-        scores_RRSE[ii] = np.sqrt(1 - sl.metrics.r2_score(_y, _x))
+        scores_RAE[ii] = score_REA(y, x)
+        scores_R2[ii] =  sl.metrics.r2_score(y, x)
+        scores_RRSE[ii] = np.sqrt(1 - sl.metrics.r2_score(y, x))
     
     # scores
     scores['Target'] = target_names[0: n]
@@ -317,8 +335,86 @@ def analyze_scores_hls(FLAGS, n=4):
     return scores
 
 
-def analyze_result_error():
-    pass
+def analyze_result(FLAGS, value='error'):
+    """
+    Analyzing function: Calculate the error of the predicting results.
+    """
+    # load results
+    result_db = load_result_db(FLAGS)
+    
+    # traverse the results
+#    errors = {}
+    for name in result_db.keys():
+#        errors[name] = {}
+        for target in result_db[name].keys():
+            # load result
+            y_pre = result_db[name][target]['Pre']
+            y_tru = result_db[name][target]['Truth']
+            
+            # calculate error and index
+            if value == 'error':
+                values = abs(y_pre - y_tru)
+            elif value == 'truth':
+                values = y_tru
+            elif value == 'predict':
+                values = y_pre
+                
+            index = [x for x in range(0, len(values))]
+            
+            # data to save
+#            errors[name][target] = {'index': index,
+#                                    'error': error}
+                
+            # plot figure
+            plt.figure()
+            plt.bar(index, values)
+            plt.title(name + ' for ' + target)
+            plt.show()
+        
+    print '\nSucceed!' 
+
+
+def analyze_result_design(FLAGS, value='error'):
+    """
+    Analyzing function: Calculate the error of the predicting results.
+    Grouped by design ids.
+    """
+    # load testing data
+    X_test, Y_test, mean_features, mean_targets, \
+        std_features, std_targets, feature_names, target_names, \
+        design_index = load_test_data(FLAGS)
+        
+    # load results
+    result_db = load_result_db(FLAGS)
+    
+    # traverse the results
+    for name in result_db.keys():
+        for target in result_db[name].keys():
+            # load result
+            y_pre = result_db[name][target]['Pre']
+            y_tru = result_db[name][target]['Truth']
+            
+            # calculate error and index
+            values = pd.DataFrame(index=design_index)
+            if value == 'error':
+                values["error"] = abs(y_pre - y_tru)
+            elif value == 'truth':
+                values["error"] = y_tru
+            elif value == 'predict':
+                values["error"] = y_pre
+                
+            values = values.groupby(values.index)["error"].mean()
+            
+            # print 
+            print '\n\nThe design ids include:', list(values.index)
+            
+            # plot figure
+            plt.figure()
+            plt.bar(values.index, values.values)
+            plt.title(name + ' for ' + target)
+            plt.show()
+        
+    print '\nSucceed!' 
 
 
 def analyze_learning_curve(FLAGS):
@@ -327,16 +423,13 @@ def analyze_learning_curve(FLAGS):
     """
     # load testing data
     X_test, Y_test, mean_features, mean_targets, \
-        std_features, std_targets, \
-        feature_names, target_names = load_test_data(FLAGS)
+        std_features, std_targets, feature_names, target_names, \
+        design_index = load_test_data(FLAGS)
         
     # load training data
     X_train, Y_train, mean_features, mean_targets, \
-        std_features, std_targets, \
-        feature_names, target_names = load_train_data(FLAGS)
-        
-#    # load params
-#    param_db = load_params(FLAGS)
+        std_features, std_targets, feature_names, target_names, \
+        design_index = load_train_data(FLAGS)
     
     # load params
     model_db = load_model_db(FLAGS)
@@ -412,10 +505,32 @@ if __name__ == '__main__':
     # choose function
     if FLAGS.func == 'feature_importance' or FLAGS.func == 'fi':
         results = analyze_feature_importance(FLAGS)
+        
     elif FLAGS.func == 'sores' or FLAGS.func == 'sc':
         results = analyze_scores(FLAGS)
+        
     elif FLAGS.func == 'sores_hls' or FLAGS.func == 'schls':
         results = analyze_scores_hls(FLAGS)
-    elif FLAGS.func == 'learning_curve' or FLAGS.func == 'ls':
+        
+    elif FLAGS.func == 'learning_curve' or FLAGS.func == 'lc':
         results = analyze_learning_curve(FLAGS)
-    
+        
+    elif FLAGS.func == 'result_error' or FLAGS.func == 're':
+        results = analyze_result(FLAGS, value='error')
+        
+    elif FLAGS.func == 'result_error_design' or FLAGS.func == 'red':
+        results = analyze_result_design(FLAGS, value='error')
+        
+    elif FLAGS.func == 'result_predict' or FLAGS.func == 'rp':
+        results = analyze_result(FLAGS, value='predict')
+        
+    elif FLAGS.func == 'result_predict_design' or FLAGS.func == 'rpd':
+        results = analyze_result_design(FLAGS, value='predict')
+        
+    elif FLAGS.func == 'result_truth' or FLAGS.func == 'rt':
+        results = analyze_result(FLAGS, value='truth')
+        
+    elif FLAGS.func == 'result_truth_design' or FLAGS.func == 'rtd':
+        results = analyze_result_design(FLAGS, value='truth')
+
+# error picture

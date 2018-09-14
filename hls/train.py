@@ -30,7 +30,7 @@ parser.add_argument('--models_dir', type=str, \
                     help='Directory or file to save the trained model. \
                     String. Default: ./saves/train/models.pkl')
 
-parser.add_argument('--tune_parameter', action='store_false',
+parser.add_argument('-t', '--tune_parameter', action='store_false',
                      help='Whether to tune parameters or not. \
                      Boolean. Default: true')
 
@@ -38,17 +38,17 @@ parser.add_argument('--validation_ratio', type=float, default=0.25,
                      help='The ratio of the training data to do validation. \
                      Float. Default: 0.25')
 
-parser.add_argument('--model_train', type=str, default='xgb',
+parser.add_argument('-m', '--model_train', type=str, default='xgb',
                      help='The model to be trained. \
                      Empty means not training models. \
                      Value from "", "xgb"(default), "lasso"')
 
-parser.add_argument('--model_fsel', type=str, default='lasso',
+parser.add_argument('-s', '--model_fsel', type=str, default='lasso',
                      help='The model used to select features. \
                      Empty means not selecting features. \
                      Value from "", "xgb", "lasso"(default)') 
 
-parser.add_argument('--model_assemble', type=str, default='',
+parser.add_argument('-a', '--model_assemble', type=str, default='',
                      help='Strategy used to assemble the trained models. \
                      Empty means not training models. \
                      Value from ""(default), "xgb+lasso+equal_weights", \
