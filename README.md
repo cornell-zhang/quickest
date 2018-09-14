@@ -111,7 +111,7 @@ optional arguments:
                         name. String. Default: ./saves/test/
 ```
 
-## Model analyzing
+## Model analysis
 usage: analyze.py [-h] [--train_data_dir TRAIN_DATA_DIR]
                   [--test_data_dir TEST_DATA_DIR] [--model_dir MODEL_DIR]
                   [--param_dir PARAM_DIR] [--result_dir RESULT_DIR]
@@ -158,3 +158,6 @@ rtd - show the result truth of the testing data grouped by the design ids
 rp - show the result prediction of the testing data
 rpd - show the result prediction grouped by the design ids
 ```
+## Additional Acknowledgements
+* *Qiang You*: For contributing a new set of training, testing, and analysis features to the estimation flow, improving the usability of the scripts, and performing preliminary study on extending the flow to LegUp.
+* *Dan Batan*: For his early effort in extending the flow to LegUp.
