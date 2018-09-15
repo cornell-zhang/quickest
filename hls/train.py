@@ -30,9 +30,9 @@ parser.add_argument('--models_dir', type=str, \
                     help='Directory or file to save the trained model. \
                     String. Default: ./saves/train/models.pkl')
 
-parser.add_argument('-t', '--tune_parameter', action='store_false',
-                     help='Whether to tune parameters or not. \
-                     Boolean. Default: true')
+parser.add_argument('-d', '--disable_param_tuning', action='store_true',
+                     help='Whether to disable parameters tuning or not. \
+                     Boolean. Default: false')
 
 parser.add_argument('--validation_ratio', type=float, default=0.25,
                      help='The ratio of the training data to do validation. \
@@ -217,7 +217,7 @@ def train_models(X, Y, design_index, FLAGS, silence=False):
             param = params[target]['param']
             
         # tune parameters
-        if FLAGS.tune_parameter:
+        if not FLAGS.disable_param_tuning:
             if not silence: print 'Tuning parameters for', FLAGS.model_train, '  ...'
             
             # tune param for LASSO
