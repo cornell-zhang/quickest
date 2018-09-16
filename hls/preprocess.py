@@ -14,10 +14,10 @@ parser.add_argument('--data_dir', type=str, default='./data/data.csv',
                     help='Directory or file of the input data. \
                     String. Default: ./data/data.csv')
 
-parser.add_argument('-c', '--feature_col', type=int, default=236,  # 87， 92, 236
-                    help='The index (start from 1) of the last feature column.\
+parser.add_argument('-c', '--target_col', type=int, default=4,  # 87， 92, 236
+                    help='The total number of the target column.\
                     The first 2 columns are design index and device index respectively. \
-                    Integer. Default: 236')
+                    Integer. Default: 4')
 
 parser.add_argument('--test_seed', type=int, default=0, 
                     help='The seed used for selecting the test id. \
@@ -32,19 +32,19 @@ parser.add_argument('--cluster_k', type=int, default=8,
                     Integer. Default: 8')
 
 
-def load_data(file_name, feature_col, test_seed, split_by='design_sort', # design
+def load_data(file_name, target_col, test_seed, split_by='design_sort', # design
               test_ratio=0.25, test_ids=[3], cluster_k=8):
     """
     This function is used to load the data to be preprocessed.
     The format of the data file needs to be:
         1) The first 2 columns should be design index and device index respectively.
-        2) The columns from 3 to <feature_col> should be features.
-        3) The columns from <feature_col> to the end should be the targets.
+        2) The columns from 3 to <end_col - target_col> should be features.
+        3) The columns from <end_col - target_col> to the end should be the targets.
         4) If there are k targets, the first k features should be the corresponding HLS result of the k targets.
     --------------
     Prameters:
         file_name: The path of the raw data file.
-        feature_col: The column index of the last feature column.
+        target_col: The total number of the target column.
         test_seed: The seed to control the random when select the test data.
         split_by: The strategy to split the data. 
             random - Splitting the data by the id randomly. The ratio of the testing data is given by <ratio>
@@ -59,7 +59,7 @@ def load_data(file_name, feature_col, test_seed, split_by='design_sort', # desig
     """
     # load data
     data, names, stas = split_feature_target(file_name=file_name, 
-                                             feature_col=feature_col)
+                                             target_col=target_col)
     
     # split data
     data, index = split_train_test(data[0], data[1], split_by=split_by, 
@@ -72,7 +72,7 @@ def load_data(file_name, feature_col, test_seed, split_by='design_sort', # desig
     return data, index, names, stas
 
 
-def split_feature_target(file_name, feature_col,
+def split_feature_target(file_name, target_col,
         is_normalizeX=True, is_normalizeY=True, is_shuffle_design=True):
     """
     Split the data to feature dataset and target dataset. (Split the data by columns)
@@ -80,8 +80,8 @@ def split_feature_target(file_name, feature_col,
     
     df = pd.read_csv(file_name, sep=',') 
     
-    df_features = df[df.columns[2: feature_col]].copy()
-    df_targets = df[df.columns[feature_col::]].copy()
+    df_features = df[df.columns[2: -target_col]].copy()
+    df_targets = df[df.columns[-target_col::]].copy()
     
     # the standard variance and mean
     mean_features = list(df_features.mean())
@@ -259,7 +259,7 @@ if __name__ == '__main__':
     
     # get data
     data, index, names, stas = load_data(file_name=file_load, 
-                                         feature_col=FLAGS.feature_col,
+                                         target_col=FLAGS.target_col,
                                          test_seed=FLAGS.test_seed,
                                          test_ratio=FLAGS.test_ratio,
                                          cluster_k=FLAGS.cluster_k)

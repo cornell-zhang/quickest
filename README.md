@@ -32,14 +32,14 @@ The python files for these features are in *[path to top directory]/hls*.
 The data file is CSV file. The columns are separated by ",". The rows are separated by "\n".
 The following formats should also be satisfied:
     1) The first 2 columns should be design index and device index respectively.
-    2) The columns from 3 to <feature_col> should be features.
-    3) The columns from <feature_col> to the end should be the targets.
+    2) The columns from 3 to <end_col-target_col> should be features.
+    3) The columns from <end_col-target_col> to the end should be the targets.
     4) If there are k targets, the first k features should be the corresponding HLS result of the k targets.
 ```
 
 
 ## Data preprocessing
-python preprocess.py [-h] [--data_dir DATA_DIR] [-c FEATURE_COL]
+python preprocess.py [-h] [--data_dir DATA_DIR] [-c TARGET_COL]
                      [--test_seed TEST_SEED] [--cluster_k CLUSTER_K]
 
 ```
@@ -47,10 +47,10 @@ optional arguments:
   -h, --help            show this help message and exit
   --data_dir DATA_DIR   Directory or file of the input data. String. Default:
                         ./data/data.csv
-  -c FEATURE_COL, --feature_col FEATURE_COL
-                        The index (start from 1) of the last feature column.
-                        The first 2 columns are design index and device index
-                        respectively. Integer. Default: 236
+  -c TARGET_COL, --target_col TARGET_COL
+                        The number of target columns.
+			The first 2 columns are design index and device index
+                        respectively. Integer. Default: 4 
   --test_seed TEST_SEED
                         The seed used for selecting the test id. Integer.
                         Default: 0
@@ -76,8 +76,9 @@ optional arguments:
   --models_dir MODELS_DIR
                         Directory or file to save the trained model. String.
                         Default: ./saves/train/models.pkl
-  -t, --tune_parameter  Whether to tune parameters or not. Boolean. Default:
-                        true
+  -d, --disable_param_tuning 
+                        Whether to disable parameters tuning or not. Boolean. 
+          		Default: false
   --validation_ratio VALIDATION_RATIO
                         The ratio of the training data to do validation.
                         Float. Default: 0.25
