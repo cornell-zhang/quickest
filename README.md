@@ -78,7 +78,7 @@ optional arguments:
                         Default: ./saves/train/models.pkl
   -d, --disable_param_tuning 
                         Whether to disable parameters tuning or not. Boolean. 
-          		        Default: false
+          		Default: false
   --validation_ratio VALIDATION_RATIO
                         The ratio of the training data to do validation.
                         Float. Default: 0.25
