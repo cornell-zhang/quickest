@@ -78,7 +78,7 @@ optional arguments:
                         Default: ./saves/train/models.pkl
   -d, --disable_param_tuning 
                         Whether to disable parameters tuning or not. Boolean. 
-          		Default: false
+          		        Default: false
   --validation_ratio VALIDATION_RATIO
                         The ratio of the training data to do validation.
                         Float. Default: 0.25
@@ -90,8 +90,8 @@ optional arguments:
                         selecting features. Value from "", "xgb",
                         "lasso"(default)
   -a MODEL_ASSEMBLE, --model_assemble MODEL_ASSEMBLE
-                        Strategy used to assemble the trained models(automatically train them if they are not existed). Empty
-                        means not training models. Value from ""(default),
+                        Strategy used to assemble the trained models(automatically train them if they are not existed).
+                        Empty means not training models. Value from ""(default),
                         "xgb+lasso+equal_weights", "xgb+lasso+learn_weights"
 ```
 
