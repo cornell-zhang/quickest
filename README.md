@@ -90,7 +90,7 @@ optional arguments:
                         selecting features. Value from "", "xgb",
                         "lasso"(default)
   -a MODEL_ASSEMBLE, --model_assemble MODEL_ASSEMBLE
-                        Strategy used to assemble the trained models. Empty
+                        Strategy used to assemble the trained models(automatically train them if they are not existed). Empty
                         means not training models. Value from ""(default),
                         "xgb+lasso+equal_weights", "xgb+lasso+learn_weights"
 ```
