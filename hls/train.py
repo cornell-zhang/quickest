@@ -501,42 +501,24 @@ if __name__ == '__main__':
        
     # when we hope to train assemble model
     else:
-        # if both 'lasso' and 'xgb' have NOT been trained before
-        if not os.path.exists(FLAGS.models_dir):
-            # set model to 'lasso'
-            FLAGS.model_train = 'lasso'
+        # make a list of models
+        model_list = ['lasso', 'xgb']
 
-            # train 'lasso' and then save models as well as params
-            models, params = train_models(X_train, Y_train, design_index, FLAGS)
-            save_models(FLAGS.model_train, models, FLAGS)
-            save_params(FLAGS.model_train, params, FLAGS)
-
-            # set model to 'xgb'
-            FLAGS.model_train = 'xgb'
-
-            # train 'xgb' and then save models as well as params
-            models, params = train_models(X_train, Y_train, design_index, FLAGS)
-            save_models(FLAGS.model_train, models, FLAGS)
-            save_params(FLAGS.model_train, params, FLAGS)
-
-        # if only 'lasso'(or 'xgb') has NOT been trained before
-        else: 
-            # load model database
+        # whether the model path is existed
+        if os.path.exists(FLAGS.models_dir):
             models_db = pickle.load(open(FLAGS.models_dir, 'r'))
-        
-            # if 'lasso' has NOT been trained, train it and save models as well as params
-            if not 'lasso' in models_db.keys(): 
-	            FLAGS.model_train = 'lasso'
-  	            models, params = train_models(X_train, Y_train, design_index, FLAGS)
-	            save_models(FLAGS.model_train, models, FLAGS)
-	            save_params(FLAGS.model_train, params, FLAGS)
 
-            # if 'xgb' has NOT been trained, train it and save models as well as params
-            if not 'xgb' in models_db.keys():
-                FLAGS.model_train = 'xgb'		   
-                models, params = train_models(X_train, Y_train, design_index, FLAGS)
-                save_models(FLAGS.model_train, models, FLAGS)
-                save_params(FLAGS.model_train, params, FLAGS)
+            # delete the model(s) which has(have) already been trained
+            for x in model_list:
+                if x in models_db.keys():
+                    model_list.remove(x)
+
+        # train all the models remained in the model list
+        for x in model_list:
+            FLAGS.model_train = x
+            models, params = train_models(X_train, Y_train, design_index, FLAGS)
+            save_models(FLAGS.model_train, models, FLAGS)
+            save_params(FLAGS.model_train, params, FLAGS)
 
         # load model database
         model_db = load_model_db(FLAGS, silence=True)
