@@ -69,7 +69,6 @@ def load_data(FLAGS, silence=False):
     # load data
     with open(FLAGS.data_dir, "rb") as f:
         data = pickle.load(f)
-        print type(data) 
     # unpack the data
     X = data['x']
     Y = data['y']
@@ -501,18 +500,25 @@ if __name__ == '__main__':
        
     # when we hope to train assemble model
     else:
-        # make a list of models
-        model_list = ['lasso', 'xgb']
+        # make a sample list of models
+        model_list_sample = ['lasso', 'xgb']
 
         # whether the model path is existed
         if os.path.exists(FLAGS.models_dir):
+
+            # make a list of models
+            model_list = []
+            # load(copy) model database
             models_db = pickle.load(open(FLAGS.models_dir, 'r'))
 
             # delete the model(s) which has(have) already been trained
-            for x in model_list:
-                if x in models_db.keys():
-                    model_list.remove(x)
+            for x in model_list_sample:
+                if not x in models_db.keys():
+                    # append the models that have not been trained
+                    model_list.append(x)
 
+        else:
+            model_list = ['lasso', 'xgb']
         # train all the models remained in the model list
         for x in model_list:
             FLAGS.model_train = x
