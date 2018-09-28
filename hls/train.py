@@ -49,7 +49,7 @@ parser.add_argument('-s', '--model_fsel', type=str, default='lasso',
                      Value from "", "xgb", "lasso"(default)') 
 
 parser.add_argument('-a', '--model_assemble', type=str, default='',
-                     help='Strategy used to assemble the trained models. \
+                     help='Strategy used to assemble the trained models(automatically train them if they are not existed). \
                      Empty means not training models. \
                      Value from ""(default), "xgb+lasso+equal_weights", \
                      "xgb+lasso+learn_weights"')
@@ -69,7 +69,6 @@ def load_data(FLAGS, silence=False):
     # load data
     with open(FLAGS.data_dir, "rb") as f:
         data = pickle.load(f)
-    
     # unpack the data
     X = data['x']
     Y = data['y']
@@ -291,8 +290,9 @@ def train_models(X, Y, design_index, FLAGS, silence=False):
         models[target] = {'model': model, 
                           'fselect': feature_select,
                           'fnames': np.array(Feature_Names)[feature_select].tolist()}
-    
+         
     # return
+
     return models, params
 
 
@@ -486,19 +486,48 @@ if __name__ == '__main__':
     # load training data
     X_train, Y_train, Feature_Names, Target_Names, design_index = load_data(FLAGS)
     
-    if FLAGS.model_train != '':
-        # train models
-        models, params = train_models(X_train, Y_train, design_index, FLAGS)
+    # when we do NOT hope to train assemble model
+    if FLAGS.model_assemble == '':	
+        if FLAGS.model_train != '':
+            # train models
+            models, params = train_models(X_train, Y_train, design_index, FLAGS)
         
-        # save models
-        save_models(FLAGS.model_train, models, FLAGS)
+            # save models
+            save_models(FLAGS.model_train, models, FLAGS)
         
-        # save params
-        save_params(FLAGS.model_train, params, FLAGS)
-    
-    if FLAGS.model_assemble != '':
+            # save params
+            save_params(FLAGS.model_train, params, FLAGS)
+       
+    # when we hope to train assemble model
+    else:
+        # make a sample list of models
+        model_list_sample = ['lasso', 'xgb']
+
+        # whether the model path is existed
+        if os.path.exists(FLAGS.models_dir):
+
+            # make a list of models
+            model_list = []
+            # load(copy) model database
+            models_db = pickle.load(open(FLAGS.models_dir, 'r'))
+
+            # delete the model(s) which has(have) already been trained
+            for x in model_list_sample:
+                if not x in models_db.keys():
+                    # append the models that have not been trained
+                    model_list.append(x)
+
+        else:
+            model_list = ['lasso', 'xgb']
+        # train all the models remained in the model list
+        for x in model_list:
+            FLAGS.model_train = x
+            models, params = train_models(X_train, Y_train, design_index, FLAGS)
+            save_models(FLAGS.model_train, models, FLAGS)
+            save_params(FLAGS.model_train, params, FLAGS)
+
         # load model database
-        model_db = load_model_db(FLAGS, silence=True)
+        model_db = load_model_db(FLAGS)
         
         # assemble models 
         models = assemble_models(X_train, Y_train, model_db, FLAGS)
