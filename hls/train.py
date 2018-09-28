@@ -527,7 +527,7 @@ if __name__ == '__main__':
             save_params(FLAGS.model_train, params, FLAGS)
 
         # load model database
-        model_db = load_model_db(FLAGS, silence=True)
+        model_db = load_model_db(FLAGS)
         
         # assemble models 
         models = assemble_models(X_train, Y_train, model_db, FLAGS)
