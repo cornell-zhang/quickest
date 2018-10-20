@@ -51,6 +51,15 @@ optional arguments:
                         The number of target columns.
 			The first 2 columns are design index and device index
                         respectively. Integer. Default: 4 
+  --split_by SPLIT_BY
+                          The strategy to split the data. 
+                          random - Splitting the data by the id randomly. The ratio of the testing data is given by <ratio>
+                          design_random - Splitting the data by the design id randomly. The ratio of the testing designs is given by <ratio>
+                          design_select - Splitting the data by the design id. The testing design id is given by <test_ids>.
+                          design_sort - Splitting the data by the design id. The design ids are clustered, \
+                          sorted by the target values and the splitted.
+                          The number of cluster groups are controlled by <cluster_k>.
+                          Default: design_sort
   --test_seed TEST_SEED
                         The seed used for selecting the test id. Integer.
                         Default: 0
