@@ -248,7 +248,7 @@ def analyze_scores(FLAGS):
     """
     # load results
     result_db = load_result_db(FLAGS)
-    
+    #print result_db 
     # traverse the results
     scores = {}
     for name in result_db.keys():
@@ -293,7 +293,7 @@ def analyze_scores(FLAGS):
     return scores
 
 
-def analyze_scores_hls(FLAGS, n=4):
+def analyze_scores_hls(FLAGS):
     """
     Analyzing function: Calculate the scores of the HLS results.
     """
@@ -301,7 +301,7 @@ def analyze_scores_hls(FLAGS, n=4):
     X, Y, mean_features, mean_targets, \
         std_features, std_targets, feature_names, target_names, \
         design_index = load_test_data(FLAGS)
-        
+    n = len(target_names)   
     # data to return
     scores = pd.DataFrame()
     
