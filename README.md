@@ -41,7 +41,7 @@ The following formats should also be satisfied:
 ## Data preprocessing
 python preprocess.py [-h] [--data_dir DATA_DIR] [-c TARGET_COL]
                      [--test_seed TEST_SEED] [--cluster_k CLUSTER_K]
-
+                     [--split_by SPLIT_BY] [--test_ids ID1 ID2 ID3 ...]
 ```
 optional arguments:
   -h, --help            show this help message and exit
@@ -60,6 +60,9 @@ optional arguments:
                           sorted by the target values and the splitted.
                           The number of cluster groups are controlled by <cluster_k>.
                           Default: design_sort
+  --test_ids ID1 ID2 ID3 ... 
+   												The test index/device id list. Integer.
+                          Default: [0] 
   --test_seed TEST_SEED
                         The seed used for selecting the test id. Integer.
                         Default: 0
