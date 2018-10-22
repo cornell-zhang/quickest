@@ -22,13 +22,23 @@ parser.add_argument('--data_dir', type=str, \
 
 parser.add_argument('--params_dir', type=str, \
                     default='./saves/train/params.pkl',
-                    help='Directory or file to load and save the parameters. \
+                    help='Directory or file to load the parameters. \
                     String. Default: ./saves/train/params.pkl')
+
+parser.add_argument('--params_save_dir', type=str, \
+                    default='./saves/train/params_save.pkl',
+                    help='Directory or file to load the parameters. \
+                    String. Default: ./saves/train/params_save.pkl')
 
 parser.add_argument('--models_dir', type=str, \
                     default='./saves/train/models.pkl', 
-                    help='Directory or file to save the trained model. \
+                    help='Directory or file to load the trained model. \
                     String. Default: ./saves/train/models.pkl')
+
+parser.add_argument('--models_save_dir', type=str, \
+                    default='./saves/train/models_save.pkl',
+                    help='Directory or file to load the trained model. \
+                    String. Default: ./saves/train/models_save.pkl')
 
 parser.add_argument('-d', '--disable_param_tuning', action='store_true',
                      help='Whether to disable parameters tuning or not. \
@@ -108,9 +118,9 @@ def save_models(name, models, FLAGS, silence=False):
         return 
     
     # input file name
-    file_dir, file_name = os.path.split(FLAGS.models_dir)
+    file_dir, file_name = os.path.split(FLAGS.models_save_dir)
     if file_dir == '': file_dir = "./saves/train/"
-    if file_name == '': file_name = 'models.pkl'
+    if file_name == '': file_name = 'models_save.pkl'
     file_path = os.path.join(file_dir, file_name)
     
     # create folder
@@ -119,7 +129,9 @@ def save_models(name, models, FLAGS, silence=False):
     
     # load model database
     model_db = load_model_db(FLAGS, silence=True)
-    
+    print 'hello'
+    print model_db
+ 
     # modify model database
     model_db[name] = models
     
@@ -128,6 +140,21 @@ def save_models(name, models, FLAGS, silence=False):
         
     if not silence: print ''
     if not silence: print 'Save Models to: ', file_path
+
+def load_param_db(FLAGS, silence=False):
+    """
+    Load model database.
+    """
+    if not silence: print ''
+    if not silence: print 'Load param from: ', FLAGS.param_dir
+
+    if not os.path.exists(FLAGS.params_dir):
+        return {}
+
+    with open(FLAGS.params_dir, "rb") as f:
+        param_db = pickle.load(f)
+
+    return param_db
     
     
 def save_params(name, params, FLAGS, silence=False):
@@ -142,9 +169,9 @@ def save_params(name, params, FLAGS, silence=False):
         return 
     
     # input file name
-    file_dir, file_name = os.path.split(FLAGS.params_dir)
+    file_dir, file_name = os.path.split(FLAGS.params_save_dir)
     if file_dir == '': file_dir = "./saves/params/"
-    if file_name == '': file_name = 'params.pkl'
+    if file_name == '': file_name = 'params_save.pkl'
     file_path = os.path.join(file_dir, file_name)
     
     # create folder
@@ -152,10 +179,7 @@ def save_params(name, params, FLAGS, silence=False):
         os.mkdir(file_dir)
     
     # load model database
-    if os.path.exists(file_path):
-        param_db = pickle.load(open(file_path, "r"))
-    else:
-        param_db = {}
+    param_db = load_param_db(FLAGS, silence=True)
     
     param_db[name] = params
     
@@ -192,7 +216,6 @@ def train_models(X, Y, design_index, FLAGS, silence=False):
         params_db = pickle.load(open(FLAGS.params_dir, 'r'))
         if FLAGS.model_train in params_db.keys():
             params = params_db[FLAGS.model_train] 
-    
     for ii in xrange(0, len(Target_Names)): 
         target = Target_Names[ii]
         x = X
@@ -273,6 +296,7 @@ def train_models(X, Y, design_index, FLAGS, silence=False):
                                      min_child_weight=param['min_child_weight'],
                                      subsample=param['subsample'],
                                      colsample_bytree=param['colsample_bytree'],
+                                     #colsample_bytree=0.1,
                                      gamma=param['gamma'])
             model.fit(x[:, feature_select], y)
             
@@ -485,7 +509,6 @@ if __name__ == '__main__':
     
     # load training data
     X_train, Y_train, Feature_Names, Target_Names, design_index = load_data(FLAGS)
-    
     # when we do NOT hope to train assemble model
     if FLAGS.model_assemble == '':	
         if FLAGS.model_train != '':
@@ -502,7 +525,6 @@ if __name__ == '__main__':
     else:
         # make a sample list of models
         model_list_sample = ['lasso', 'xgb']
-
         # whether the model path is existed
         if os.path.exists(FLAGS.models_dir):
 
@@ -510,7 +532,6 @@ if __name__ == '__main__':
             model_list = []
             # load(copy) model database
             models_db = pickle.load(open(FLAGS.models_dir, 'r'))
-
             # delete the model(s) which has(have) already been trained
             for x in model_list_sample:
                 if not x in models_db.keys():

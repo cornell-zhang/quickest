@@ -70,7 +70,10 @@ optional arguments:
 
 ## Model training
 python train.py [-h] [--data_dir DATA_DIR] [--params_dir PARAMS_DIR]
-                [--models_dir MODELS_DIR] [-t]
+                [--params_save_dir PARAMS_SAVE_DIR] 
+                [--models_dir MODELS_DIR] 
+                [--models_save_dir MODELS_SAVEDIR]
+                [-d]
                 [--validation_ratio VALIDATION_RATIO] [-m MODEL_TRAIN]
                 [-s MODEL_FSEL] [-a MODEL_ASSEMBLE]
 
@@ -80,11 +83,17 @@ optional arguments:
   --data_dir DATA_DIR   Directory or file of the training dataset. String.
                         Default: ./data/data_train.pkl
   --params_dir PARAMS_DIR
-                        Directory or file to load and save the parameters.
+                        Directory or file to load the parameters.
                         String. Default: ./saves/train/params.pkl
-  --models_dir MODELS_DIR
-                        Directory or file to save the trained model. String.
+  --params_save_dir PARAMS_SAVE_DIR
+                        Directory or file to save the parameters.
+                        String. Default: ./saves/train/params_save.pkl
+  --models_load_dir MODELS_LOAD_DIR
+                        Directory or file to load the model. String.
                         Default: ./saves/train/models.pkl
+  --models_save_dir MODELS_SAVE_DIR
+                        Directory or file to save the trained model. String.
+                        Default: ./saves/train/models_save.pkl
   -d, --disable_param_tuning 
                         Whether to disable parameters tuning or not. Boolean. 
           		Default: false
@@ -105,7 +114,7 @@ optional arguments:
 ```
 
 ## Model testing
-python test.py [-h] [--data_dir DATA_DIR] [--models_dir MODELS_DIR]
+python test.py [-h] [--data_dir DATA_DIR] [--models_save_dir MODELS_SAVE_DIR]
                [--save_result_dir SAVE_RESULT_DIR]
 
 ```
@@ -113,7 +122,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --data_dir DATA_DIR   Directory or file of the testing dataset. String.
                         Default: ./data/data_test.pkl
-  --models_dir MODELS_DIR
+  --models_save_dir MODELS_SAVE_DIR
                         Directory or file of the pre-trained models. String.
                         Default: ./train/models.pkl
   --save_result_dir SAVE_RESULT_DIR
@@ -123,8 +132,8 @@ optional arguments:
 
 ## Model analysis
 usage: analyze.py [-h] [--train_data_dir TRAIN_DATA_DIR]
-                  [--test_data_dir TEST_DATA_DIR] [--model_dir MODEL_DIR]
-                  [--param_dir PARAM_DIR] [--result_dir RESULT_DIR]
+                  [--test_data_dir TEST_DATA_DIR] [--model_save_dir MODEL_SAVE_DIR]
+                  [--param_save_dir PARAM_SAVE_DIR] [--result_dir RESULT_DIR]
                   [--save_result_dir SAVE_RESULT_DIR] [-f FUNC]
 
 ```
@@ -136,12 +145,12 @@ optional arguments:
   --test_data_dir TEST_DATA_DIR
                         File of the testing dataset. String. Default:
                         ./data/data_test.pkl
-  --model_dir MODEL_DIR
+  --model_save_dir MODEL_SAVE_DIR
                         File of the pre-trained models. String. Default:
-                        ./save/train/models.pkl
-  --param_dir PARAM_DIR
+                        ./save/train/models_save.pkl
+  --param_save_dir PARAM_SAVE_DIR
                         File of the pre-tuned params. String. Default:
-                        ./save/train/params.pkl
+                        ./save/train/params_save.pkl
   --result_dir RESULT_DIR
                         File of the testing results. String. Default:
                         ./save/test/results.pkl

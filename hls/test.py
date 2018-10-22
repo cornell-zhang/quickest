@@ -13,10 +13,10 @@ parser.add_argument('--data_dir', type=str,
                     help = 'Directory or file of the testing dataset. \
                     String. Default: ./data/data_test.pkl')
 
-parser.add_argument('--models_dir', type=str, 
-                    default='./saves/train/models.pkl', 
+parser.add_argument('--models_save_dir', type=str, 
+                    default='./saves/train/models_save.pkl', 
                     help='Directory or file of the pre-trained models. \
-                    String. Default: ./train/models.pkl')
+                    String. Default: ./train/models_save.pkl')
 
 parser.add_argument('--save_result_dir', type=str, 
                     default='./saves/test/results.pkl', 
@@ -58,12 +58,12 @@ def load_model_db(FLAGS, silence=False):
     Load model database.
     """
     if not silence: print ''
-    if not silence: print 'Load model from: ', FLAGS.models_dir
+    if not silence: print 'Load model from: ', FLAGS.models_save_dir
     
-    if not os.path.exists(FLAGS.models_dir):
-        sys.exit("Model file " + FLAGS.models_dir + " does not exist!")
+    if not os.path.exists(FLAGS.models_save_dir):
+        sys.exit("Model file " + FLAGS.models_save_dir + " does not exist!")
         
-    with open(FLAGS.models_dir, "rb") as f:
+    with open(FLAGS.models_save_dir, "rb") as f:
         model_db = pickle.load(f)  
         
     return model_db
