@@ -51,18 +51,20 @@ optional arguments:
                         The number of target columns.
 			The first 2 columns are design index and device index
                         respectively. Integer. Default: 4 
-  --split_by SPLIT_BY
-                          The strategy to split the data. 
-                          random - Splitting the data by the id randomly. The ratio of the testing data is given by <ratio>
-                          design_random - Splitting the data by the design id randomly. The ratio of the testing designs is given by <ratio>
-                          design_select - Splitting the data by the design id. The testing design id is given by <test_ids>.
-                          design_sort - Splitting the data by the design id. The design ids are clustered, \
-                          sorted by the target values and the splitted.
-                          The number of cluster groups are controlled by <cluster_k>.
-                          Default: design_sort
+  --split_by SPLIT_BY   The strategy to split the data. 
+                        random - Splitting the data by the id randomly. The ratio
+                            of the testing data is given by <ratio>
+                        design_random - Splitting the data by the design id randomly. 
+                            The ratio of the testing designs is given by <ratio>
+                        design_select - Splitting the data by the design id. 
+                            The testing design id is given by <test_ids>.
+                        design_sort - Splitting the data by the design id. The design 
+                            ids are clustered, sorted by the target values and the splitted.
+                            The number of cluster groups are controlled by <cluster_k>.
+                        Default: design_sort
   --test_ids ID1 ID2 ID3 ... 
-   												The test index/device id list. Integer.
-                          Default: [0] 
+                        The test index/device id list. Integer.
+                        Default: [0] 
   --test_seed TEST_SEED
                         The seed used for selecting the test id. Integer.
                         Default: 0
@@ -111,7 +113,8 @@ optional arguments:
                         selecting features. Value from "", "xgb",
                         "lasso"(default)
   -a MODEL_ASSEMBLE, --model_assemble MODEL_ASSEMBLE
-                        Strategy used to assemble the trained models(automatically train them if they are not existed).
+                        Strategy used to assemble the trained models
+                        (automatically train them if they are not existed).
                         Empty means not training models. Value from ""(default),
                         "xgb+lasso+equal_weights", "xgb+lasso+learn_weights"
 ```
