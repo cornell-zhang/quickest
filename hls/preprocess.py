@@ -19,6 +19,21 @@ parser.add_argument('-c', '--target_col', type=int, default=4,  # 87， 92, 236
                     The first 2 columns are design index and device index respectively. \
                     Integer. Default: 4')
 
+parser.add_argument('--split_by', type=str, default='design_sort',
+                    help="""The strategy to split the data. 
+                          random -        Splitting the data by the id randomly. 
+			                                    The ratio of the testing data is given by <ratio> 
+                          design_random - Splitting the data by the design id randomly. 
+			                                    The ratio of the testing designs is given by <ratio> 
+                          design_select - Splitting the data by the design id. 
+			                                    The testing design id is given by <test_ids>.
+                          design_sort -   Splitting the data by the design id. 
+                                          The design ids are clustered, 
+                                          sorted by the target values and the splitted. 
+                                          The number of cluster groups are controlled by <cluster_k>. 
+                          String. Default: design_sort.""")
+
+
 parser.add_argument('--test_seed', type=int, default=0, 
                     help='The seed used for selecting the test id. \
                     Integer. Default: 0')
@@ -27,12 +42,18 @@ parser.add_argument('--test_ratio', type=float, default=0.25,
                     help='The percentage of the data used as testing dataset.\
                     Float. Default: 0.25')
 
+parser.add_argument('--test_ids', nargs='+', type=int, default=[0],
+                        help='The id of data used as testing dataset.\
+                        [Integer]. Default: [0]. \
+                        Example: python preprocess.py --test_id 0 2 3')
+
 parser.add_argument('--cluster_k', type=int, default=8, 
                     help='How many clusters will be clustered when patitioning the training and testing dataset.\
-                    Integer. Default: 8')
+                    Used when <split_by> is "design_sort". \
+                    Integer. Used when <split_by> is design_sort. Default: 8')
 
 
-def load_data(file_name, target_col, test_seed, split_by='design_sort', # design
+def load_data(file_name, target_col, test_seed, split_by='design_sort', 
               test_ratio=0.25, test_ids=[3], cluster_k=8):
     """
     This function is used to load the data to be preprocessed.
@@ -47,10 +68,14 @@ def load_data(file_name, target_col, test_seed, split_by='design_sort', # design
         target_col: The total number of the target column.
         test_seed: The seed to control the random when select the test data.
         split_by: The strategy to split the data. 
-            random - Splitting the data by the id randomly. The ratio of the testing data is given by <ratio>
-            design_random - Splitting the data by the design id randomly. The ratio of the testing designs is given by <ratio>
-            design_select - Splitting the data by the design id. The testing design id is given by <test_ids>.
-            design_sort - Splitting the data by the design id. The design ids are clustered, \
+            random - Splitting the data by the id randomly. 
+                     The ratio of the testing data is given by <ratio>
+            design_random - Splitting the data by the design id randomly. 
+                            The ratio of the testing designs is given by <ratio>
+            design_select - Splitting the data by the design id. 
+                            The testing design id is given by <test_ids>.
+            design_sort - Splitting the data by the design id. 
+                          The design ids are clustered, 
                           sorted by the target values and the splitted.
                           The number of cluster groups are controlled by <cluster_k>.
         test_ratio - Used when <split_by> is "random" or "design_random"
@@ -260,8 +285,10 @@ if __name__ == '__main__':
     # get data
     data, index, names, stas = load_data(file_name=file_load, 
                                          target_col=FLAGS.target_col,
+                                         split_by=FLAGS.split_by,
                                          test_seed=FLAGS.test_seed,
                                          test_ratio=FLAGS.test_ratio,
+                                         test_ids=FLAGS.test_ids,
                                          cluster_k=FLAGS.cluster_k)
     
     x_train = data[0]

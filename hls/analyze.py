@@ -25,15 +25,15 @@ parser.add_argument('--test_data_dir', type=str,
                     help='File of the testing dataset. \
                     String. Default: ./data/data_test.pkl')
 
-parser.add_argument('--model_dir', type=str, 
-                    default='./saves/train/models.pkl', 
+parser.add_argument('--model_save_dir', type=str, 
+                    default='./saves/train/models_save.pkl', 
                     help='File of the pre-trained models. \
-                    String. Default: ./save/train/models.pkl')
+                    String. Default: ./save/train/models_save.pkl')
 
-parser.add_argument('--param_dir', type=str, 
+parser.add_argument('--param_save_dir', type=str, 
                     default='./saves/train/params.pkl', 
                     help = 'File of the pre-tuned params. \
-                    String. Default: ./save/train/params.pkl')
+                    String. Default: ./save/train/params_save.pkl')
 
 parser.add_argument('--result_dir', type=str, 
                     default='./saves/test/results.pkl', 
@@ -119,10 +119,10 @@ def load_model_db(FLAGS):
     Load model database.
     """
     # load models
-    if not os.path.exists(FLAGS.model_dir):
-        sys.exit("Model file " + FLAGS.model_dir + " does not exist!")
+    if not os.path.exists(FLAGS.models_save_dir):
+        sys.exit("Model file " + FLAGS.model_save_dir + " does not exist!")
     else:
-        return pickle.load(open(FLAGS.model_dir, "r")) 
+        return pickle.load(open(FLAGS.model_save_dir, "r")) 
 
 
 def load_result_db(FLAGS):
@@ -141,10 +141,10 @@ def load_param_db(FLAGS):
     Load parameter database.
     """
     # load models
-    if not os.path.exists(FLAGS.param_dir):
-        sys.exit("Model file " + FLAGS.param_dir + " does not exist!")
+    if not os.path.exists(FLAGS.param_save_dir):
+        sys.exit("Model file " + FLAGS.param_save_dir + " does not exist!")
     else:
-        return pickle.load(open(FLAGS.param_dir, "r")) 
+        return pickle.load(open(FLAGS.param_save_dir, "r")) 
            
            
 def analyze_feature_importance(FLAGS):
@@ -248,7 +248,7 @@ def analyze_scores(FLAGS):
     """
     # load results
     result_db = load_result_db(FLAGS)
-    
+    #print result_db 
     # traverse the results
     scores = {}
     for name in result_db.keys():
@@ -293,7 +293,7 @@ def analyze_scores(FLAGS):
     return scores
 
 
-def analyze_scores_hls(FLAGS, n=4):
+def analyze_scores_hls(FLAGS):
     """
     Analyzing function: Calculate the scores of the HLS results.
     """
@@ -301,7 +301,7 @@ def analyze_scores_hls(FLAGS, n=4):
     X, Y, mean_features, mean_targets, \
         std_features, std_targets, feature_names, target_names, \
         design_index = load_test_data(FLAGS)
-        
+    n = len(target_names)   
     # data to return
     scores = pd.DataFrame()
     
